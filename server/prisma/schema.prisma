@@ -1,0 +1,80 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  EMPLOYEE
+  DIRECTOR
+  ACCOUNTS
+}
+
+enum VoucherStatus {
+  DRAFT
+  SUBMITTED
+  PENDING_APPROVAL
+  APPROVED
+  REJECTED
+}
+
+model User {
+  id         Int       @id @default(autoincrement())
+  name       String
+  email      String    @unique
+  password   String
+  role       Role
+  employeeId String?   @unique
+
+  vouchers   Voucher[]
+
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+}
+
+model Department {
+  id       Int       @id @default(autoincrement())
+  name     String    @unique
+
+  vouchers Voucher[]
+}
+
+model ExpenseCategory {
+  id       Int       @id @default(autoincrement())
+  name     String    @unique
+
+  vouchers Voucher[]
+}
+
+model Voucher {
+  id                  Int               @id @default(autoincrement())
+  voucherNumber       String            @unique
+  voucherDate         DateTime
+  expenseDate         DateTime
+
+  expenseTitle        String
+  expenseDescription  String
+  amount              Float
+
+  status              VoucherStatus     @default(DRAFT)
+
+  employeeSignature   String?
+  directorSignature   String?
+
+  approvalDate        DateTime?
+  rejectionReason     String?
+
+  employeeId          Int
+  departmentId        Int
+  categoryId          Int
+
+  employee            User              @relation(fields: [employeeId], references: [id])
+  department          Department        @relation(fields: [departmentId], references: [id])
+  category            ExpenseCategory   @relation(fields: [categoryId], references: [id])
+
+  createdAt           DateTime          @default(now())
+  updatedAt           DateTime          @updatedAt
+}
