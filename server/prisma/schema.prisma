@@ -22,59 +22,67 @@ enum VoucherStatus {
 }
 
 model User {
-  id         Int       @id @default(autoincrement())
+  id         Int     @id @default(autoincrement())
   name       String
-  email      String    @unique
+  email      String  @unique
   password   String
   role       Role
-  employeeId String?   @unique
+  employeeId String? @unique
 
-  vouchers   Voucher[]
+  vouchers Voucher[]
 
-  createdAt  DateTime  @default(now())
-  updatedAt  DateTime  @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model Department {
-  id       Int       @id @default(autoincrement())
-  name     String    @unique
+  id   Int    @id @default(autoincrement())
+  name String @unique
 
   vouchers Voucher[]
 }
 
 model ExpenseCategory {
-  id       Int       @id @default(autoincrement())
-  name     String    @unique
+  id   Int    @id @default(autoincrement())
+  name String @unique
 
   vouchers Voucher[]
 }
 
 model Voucher {
-  id                  Int               @id @default(autoincrement())
-  voucherNumber       String            @unique
-  voucherDate         DateTime
-  expenseDate         DateTime
+  id Int @id @default(autoincrement())
 
-  expenseTitle        String
-  expenseDescription  String
-  amount              Float
+  voucherNumber String @unique
 
-  status              VoucherStatus     @default(DRAFT)
+  voucherDate DateTime
+  expenseDate DateTime
 
-  employeeSignature   String?
-  directorSignature   String?
+  expenseTitle       String
+  expenseDescription String?
 
-  approvalDate        DateTime?
-  rejectionReason     String?
+  amount Decimal @db.Decimal(10, 2)
 
-  employeeId          Int
-  departmentId        Int
-  categoryId          Int
+  employeeSignature String?
+  directorSignature String?
 
-  employee            User              @relation(fields: [employeeId], references: [id])
-  department          Department        @relation(fields: [departmentId], references: [id])
-  category            ExpenseCategory   @relation(fields: [categoryId], references: [id])
+  status VoucherStatus @default(DRAFT)
 
-  createdAt           DateTime          @default(now())
-  updatedAt           DateTime          @updatedAt
+  approvalDate    DateTime?
+  rejectionReason String?
+
+  employeeId   Int
+  departmentId Int
+  categoryId   Int
+
+  employee   User            @relation(fields: [employeeId], references: [id])
+  department Department      @relation(fields: [departmentId], references: [id])
+  category   ExpenseCategory @relation(fields: [categoryId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([employeeId])
+  @@index([departmentId])
+  @@index([categoryId])
+  @@index([status])
 }
